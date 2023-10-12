@@ -4,10 +4,10 @@ import qs from "query-string";
 import { cn } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { category } from "@prisma/client";
+import { Category } from "@prisma/client";
 
 interface CategoriesProps {
-  data: category[];
+  data: Category[];
 }
 
 export const Categories = ({ data }: CategoriesProps) => {
