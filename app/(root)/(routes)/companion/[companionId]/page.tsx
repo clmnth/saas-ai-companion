@@ -20,7 +20,10 @@ const CompanionPage = async ({ params }: CompanionIdPageProps) => {
 
   return (
     <div>
-      <CompanionForm initialData={companion} categories={categories} />
+      <CompanionForm 
+        initialData={companion} 
+        categories={categories} 
+      />
     </div>
   );
 };
