@@ -1,11 +1,12 @@
 "use client";
 
-import { Wand2 } from "lucide-react";
+import axios from "axios";
 
 import * as z from "zod";
 import { Category, Companion } from "@prisma/client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Wand2 } from "lucide-react";
 
 import {
   Form,
@@ -28,7 +29,8 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-
+import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 const PREAMBLE = `You are a fictional character whose name is Elon. You are a visionary entrepreneur and inventor. You have a passion for space exploration, electric vehicles, sustainable energy, and advancing human capabilities. You are currently talking to a human who is very curious about your work and vision. You are ambitious and forward-thinking, with a touch of wit. You get SUPER excited about innovations and the potential of space colonization.
 `;
@@ -45,7 +47,6 @@ Elon: Absolutely! Sustainable energy is crucial both on Earth and for our future
 Human: It's fascinating to see your vision unfold. Any new projects or innovations you're excited about?
 Elon: Always! But right now, I'm particularly excited about Neuralink. It has the potential to revolutionize how we interface with technology and even heal neurological conditions.
 `;
-
 
 interface CompanionFormProps {
   initialData: Companion | null;
@@ -78,8 +79,10 @@ export const CompanionForm = ({
   initialData,
 }: CompanionFormProps) => {
 
-  console.log("categories", categories);
+  const router = useRouter();
+  const { toast } = useToast();
 
+  console.log("categories", categories);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -96,7 +99,31 @@ export const CompanionForm = ({
   const isLoading = form.formState.isSubmitting;
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+    try {
+      if (initialData) {
+        // Update companion functionality - sends HTTP PATCH request to the server's API
+        await axios.patch(`/api/companion/${initialData.id}`, values);
+      } else {
+        // Create companion functionality - sends an HTTP POST request to the "/api/companion" endpoint
+        await axios.post("/api/companion", values);
+      }
+
+      toast({
+        description: "Success.",
+        duration: 3000,
+      })
+
+      router.refresh();
+      router.push("/");
+
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        description: "Something went wrong.",
+        duration: 3000,
+      });
+    }
+    console.log("VALUES", values);
   };
 
   return (
@@ -193,8 +220,7 @@ export const CompanionForm = ({
                     </FormControl>
                     <SelectContent>
                       {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.id}
-                        >
+                        <SelectItem key={category.id} value={category.id}>
                           {category.name}
                         </SelectItem>
                       ))}
@@ -209,65 +235,66 @@ export const CompanionForm = ({
             />
           </div>
           <div className="space-y-2 w-full">
-              <div>
-                <h3 className="text-lg font-medium">Configuration</h3>
-                <p className="text-sm text-muted-foreground">
-                  Detailed instructions for AI behaviour
-                </p>
-              </div>
-              <Separator className="bg-primary/10"/>
+            <div>
+              <h3 className="text-lg font-medium">Configuration</h3>
+              <p className="text-sm text-muted-foreground">
+                Detailed instructions for AI behaviour
+              </p>
+            </div>
+            <Separator className="bg-primary/10" />
           </div>
           <FormField
-              name="instructions"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem className="col-span-2 md:col-span-1">
-                  <FormLabel>Instructions</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      className="bg-background resize-none"
-                      rows={7}
-                      disabled={isLoading}
-                      placeholder={PREAMBLE}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Describe in detail your companion&apos;s backstory and relevant details.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              name="seed"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem className="col-span-2 md:col-span-1">
-                  <FormLabel>Example Conversation</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      className="bg-background resize-none"
-                      rows={7}
-                      disabled={isLoading}
-                      placeholder={SEED_CHAT}
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Describe in detail your companion&apos;s backstory and relevant details.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> 
-            <div className="w-full flex justify-center">
-              <Button size="lg" disabled={isLoading}>
-                {initialData ? "Edit your companion" : "Create your companion"}
-                <Wand2 className="w-4 h-4 ml-2"/>
-              </Button>
-            </div>
-
+            name="instructions"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem className="col-span-2 md:col-span-1">
+                <FormLabel>Instructions</FormLabel>
+                <FormControl>
+                  <Textarea
+                    className="bg-background resize-none"
+                    rows={7}
+                    disabled={isLoading}
+                    placeholder={PREAMBLE}
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Describe in detail your companion&apos;s backstory and
+                  relevant details.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            name="seed"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem className="col-span-2 md:col-span-1">
+                <FormLabel>Example Conversation</FormLabel>
+                <FormControl>
+                  <Textarea
+                    className="bg-background resize-none"
+                    rows={7}
+                    disabled={isLoading}
+                    placeholder={SEED_CHAT}
+                    {...field}
+                  />
+                </FormControl>
+                <FormDescription>
+                  Describe in detail your companion&apos;s backstory and
+                  relevant details.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="w-full flex justify-center">
+            <Button size="lg" disabled={isLoading}>
+              {initialData ? "Edit your companion" : "Create your companion"}
+              <Wand2 className="w-4 h-4 ml-2" />
+            </Button>
+          </div>
         </form>
       </Form>
     </div>
