@@ -39,6 +39,8 @@ export async function POST(req: Request) {
         seed,
       },
     });
+    
+    return NextResponse.json(companion);
   } catch (error) {
     console.log("[COMPANION_POST]", error);
     return new NextResponse("Internal Error", { status: 500 });
