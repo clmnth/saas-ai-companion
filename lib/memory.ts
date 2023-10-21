@@ -65,7 +65,7 @@ export class MemoryManager {
     return `${CompanionKey.companionName}-${CompanionKey.modelName}-${CompanionKey.userId}`;
   }
 
-  public async writeHistory(text: string, companionKey: CompanionKey) {
+  public async writeToHistory(text: string, companionKey: CompanionKey) {
     if (!companionKey || typeof companionKey.userId == "undefined") {
       console.log("Companion key set incorrectly");
       return "";
