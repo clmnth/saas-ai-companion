@@ -1,8 +1,10 @@
 // Creating the /api/companion route
 
-import prismadb from "@/lib/prismadb";
 import { currentUser } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
+
+import prismadb from "@/lib/prismadb";
+import { checkSubscription } from "@/lib/subscription";
 
 export async function POST(req: Request) {
   try {
@@ -12,6 +14,23 @@ export async function POST(req: Request) {
 
     if (!user || !user.id || !user.firstName) {
       return new NextResponse("Unauthorized", { status: 401 });
+    }
+
+    if (
+      !src ||
+      !name ||
+      !description ||
+      !instructions ||
+      !seed ||
+      !categoryId
+    ) {
+      return new NextResponse("Missing required fields", { status: 400 });
+    }
+
+    const isPro = await checkSubscription();
+
+    if (!isPro) {
+      return new NextResponse("Pro subscription required", { status: 403 });
     }
 
     if (
@@ -39,7 +58,7 @@ export async function POST(req: Request) {
         seed,
       },
     });
-    
+
     return NextResponse.json(companion);
   } catch (error) {
     console.log("[COMPANION_POST]", error);

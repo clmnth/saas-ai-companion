@@ -99,19 +99,19 @@ export async function POST(
       await model
         .call(
           `
-         ONLY generate plain sentences  without prefix of who is speaking. DO NOT use ${name} : prefixes.
+        ONLY generate plain sentences without prefix of who is speaking. DO NOT use ${companion.name}: prefix. 
 
-         $(companion.instructions)
+        ${companion.instructions}
 
-         Below are the relevant details about ${name}'s past and the conversation you are in.
-         ${relevantHistory}
+        Below are relevant details about ${companion.name}'s past and the conversation you are in.
+        ${relevantHistory}
 
-         ${recentChatHistory}\n${name}:
 
-         `
+        ${recentChatHistory}\n${companion.name}:`
         )
         .catch(console.error)
     );
+
 
     const cleaned = resp.replaceAll(",", "");
     const chunks = cleaned.split("\n");
@@ -136,11 +136,11 @@ export async function POST(
             create: {
               content: response.trim(),
               role: "system",
-              userId: user.id
-            }
-          }
-        }
-      })
+              userId: user.id,
+            },
+          },
+        },
+      });
     }
 
     return new StreamingTextResponse(s);
