@@ -112,7 +112,6 @@ export async function POST(
         .catch(console.error)
     );
 
-
     const cleaned = resp.replaceAll(",", "");
     const chunks = cleaned.split("\n");
     const response = chunks[0];
