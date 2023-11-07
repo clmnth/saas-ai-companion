@@ -1,4 +1,4 @@
-# AI Companion With Next 13, React, Stripe, Prisma, MySQL, Tailwind
+# AI Companion With Next.js 13, React, Stripe, Prisma, MySQL, Tailwind
 
 Advanced SaaS AI Companion using Next.js 13, React, Stripe, Prisma, MySQL, and Tailwind. This project leverages the power of embeddings and the Pinecone vector database for long-term memory retention. <br />
 It's enhanced with fast caching using the Upstash Redis database, and it uses MySQL and Prisma for storing companions.
